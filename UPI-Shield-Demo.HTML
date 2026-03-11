@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UPI Shield – Live Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #f5a623;
+    --accent2: #7c3aed;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #f0f0f8;
+    --muted: #888899;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 24px 0 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .badge {
+    background: rgba(245,166,35,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(245,166,35,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Demo section */
+  .demo-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  @media (max-width: 640px) { .demo-wrapper { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Input form */
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus { border-color: var(--accent2); }
+  select option { background: var(--surface); }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent2), #5b21b6);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  /* Risk display */
+  .risk-display {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .risk-meter {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .risk-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .risk-title { font-size: 13px; color: var(--muted); }
+
+  .risk-score {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    transition: all 0.5s;
+  }
+
+  .risk-bar-bg {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .risk-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;
+  }
+
+  .risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: all 0.5s;
+  }
+
+  .risk-badge.low { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .risk-badge.medium { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+  .risk-badge.high { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .risk-badge.idle { background: rgba(136,136,153,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  .flags-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .flag-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    animation: slideIn 0.3s ease both;
+  }
+
+  .flag-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Alert popup */
+  .alert-box {
+    border-radius: 14px;
+    padding: 20px;
+    display: none;
+    animation: fadeUp 0.4s ease both;
+    margin-bottom: 20px;
+  }
+
+  .alert-box.show { display: block; }
+  .alert-box.high { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
+  .alert-box.medium { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+  .alert-box.low { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
+
+  .alert-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .alert-msg { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+
+  .action-btns { display: flex; gap: 10px; }
+
+  .action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .action-btn.accept { background: rgba(34,197,94,0.2); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .action-btn.reject { background: rgba(239,68,68,0.2); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .action-btn.report { background: rgba(245,158,11,0.2); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
+  .action-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+
+  /* Transaction log */
+  .tx-log {
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .tx-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    animation: slideIn 0.3s ease both;
+  }
+
+  .tx-item:last-child { border-bottom: none; }
+  .tx-left { display: flex; align-items: center; gap: 12px; }
+  .tx-avatar {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    background: var(--surface);
+  }
+
+  .tx-name { font-weight: 500; margin-bottom: 2px; }
+  .tx-id { color: var(--muted); font-size: 11px; }
+  .tx-amount { font-family: 'Syne', sans-serif; font-weight: 700; }
+  .tx-risk { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .tx-risk.low { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tx-risk.medium { background: rgba(245,158,11,0.15); color: var(--yellow); }
+  .tx-risk.high { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 12px; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .pulse {
+    animation: pulse 1s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .result-section { display: none; }
+  .result-section.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🛡️</div>
+        <div class="logo-text">UPI <span>Shield</span></div>
+      </div>
+      <div class="badge">LIVE DEMO</div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h1>Receiver-First<br><span>Fraud Protection</span></h1>
+    <p>AI-powered risk scoring for every incoming UPI payment. Protect yourself before accepting.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" style="color: var(--red)">85%</div>
+      <div class="stat-label">Rise in UPI Fraud (2022–24)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color: var(--accent)">₹2K Cr</div>
+      <div class="stat-label">Lost to UPI scams annually</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color: var(--green)">2s</div>
+      <div class="stat-label">Risk score generated in</div>
+    </div>
+  </div>
+
+  <!-- Demo -->
+  <div class="demo-wrapper">
+    <!-- Left: Input -->
+    <div class="card">
+      <div class="card-title">⚡ Simulate Transaction</div>
+
+      <div class="input-group">
+        <label>Sender UPI ID</label>
+        <input type="text" id="upiId" placeholder="e.g. sender@paytm" value="unknown123@ybl" />
+      </div>
+
+      <div class="input-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="amount" placeholder="Enter amount" value="15000" />
+      </div>
+
+      <div class="input-group">
+        <label>Sender Profile</label>
+        <select id="profile">
+          <option value="unknown">Unknown Sender</option>
+          <option value="new">New Contact (First Time)</option>
+          <option value="suspicious">Suspicious Pattern</option>
+          <option value="blacklisted">Blacklisted UPI ID</option>
+          <option value="trusted">Trusted / Known Contact</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Transaction Time</label>
+        <select id="txtime">
+          <option value="normal">Business Hours</option>
+          <option value="odd">Odd Hours (Late Night)</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="analyzeRisk()">🤖 Analyze Risk</button>
+    </div>
+
+    <!-- Right: Result -->
+    <div class="card">
+      <div class="card-title">📊 AI Risk Analysis</div>
+
+      <div class="risk-display">
+        <div class="risk-meter">
+          <div class="risk-label-row">
+            <span class="risk-title">Risk Score</span>
+            <span class="risk-score" id="riskScore" style="color: var(--muted)">—</span>
+          </div>
+          <div class="risk-bar-bg">
+            <div class="risk-bar-fill" id="riskBar"></div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:13px; color:var(--muted)">Risk Level</span>
+          <span class="risk-badge idle" id="riskBadge">Awaiting analysis</span>
+        </div>
+
+        <div class="flags-list" id="flagsList">
+          <div class="flag-item" style="color: var(--muted); justify-content:center;">
+            Run analysis to see flags
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Box -->
+  <div class="alert-box" id="alertBox">
+    <div class="alert-title" id="alertTitle"></div>
+    <div class="alert-msg" id="alertMsg"></div>
+    <div class="action-btns">
+      <button class="action-btn accept" onclick="takeAction('accepted')">✅ Accept</button>
+      <button class="action-btn reject" onclick="takeAction('rejected')">❌ Reject</button>
+      <button class="action-btn report" onclick="takeAction('reported')">🚨 Report Fraud</button>
+    </div>
+  </div>
+
+  <!-- Transaction Log -->
+  <div class="tx-log">
+    <div class="card">
+      <div class="card-title">🗂 Transaction Log</div>
+      <div id="txLog">
+        <div class="tx-item" style="color:var(--muted); justify-content:center; padding:24px;">
+          No transactions yet. Run a simulation above.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    UPI Shield · Team UPI Sentinels · India Innovates 2026<br>
+    Veer Bahadur Singh Purvanchal University
+  </footer>
+</div>
+
+<script>
+  let txCount = 0;
+  let currentRisk = 'idle';
+
+  function analyzeRisk() {
+    const upiId = document.getElementById('upiId').value || 'unknown@ybl';
+    const amount = parseInt(document.getElementById('amount').value) || 1000;
+    const profile = document.getElementById('profile').value;
+    const txtime = document.getElementById('txtime').value;
+
+    // Calculate risk score
+    let score = 20;
+    let flags = [];
+
+    if (profile === 'blacklisted') { score += 70; flags.push({ text: '🚫 UPI ID found in fraud blacklist', color: '#ef4444' }); }
+    if (profile === 'suspicious') { score += 50; flags.push({ text: '⚠️ Suspicious transaction pattern detected', color: '#f59e0b' }); }
+    if (profile === 'unknown') { score += 30; flags.push({ text: '👤 Unknown sender — no prior transactions', color: '#f59e0b' }); }
+    if (profile === 'new') { score += 20; flags.push({ text: '🆕 First-time sender', color: '#f59e0b' }); }
+    if (profile === 'trusted') { score -= 15; flags.push({ text: '✅ Trusted contact — verified history', color: '#22c55e' }); }
+    if (amount > 10000) { score += 15; flags.push({ text: `💸 High-value transaction: ₹${amount.toLocaleString()}`, color: '#f59e0b' }); }
+    if (txtime === 'odd') { score += 20; flags.push({ text: '🌙 Transaction at unusual hours', color: '#f59e0b' }); }
+    if (upiId.includes('unknown') || upiId.includes('temp') || upiId.includes('fake')) {
+      score += 15; flags.push({ text: '🔍 Suspicious UPI ID pattern', color: '#f59e0b' });
+    }
+
+    score = Math.min(98, Math.max(5, score));
+
+    let level = score < 35 ? 'low' : score < 65 ? 'medium' : 'high';
+    currentRisk = level;
+
+    // Animate score
+    const scoreEl = document.getElementById('riskScore');
+    const barEl = document.getElementById('riskBar');
+    const badgeEl = document.getElementById('riskBadge');
+
+    const colors = { low: '#22c55e', medium: '#f59e0b', high: '#ef4444' };
+    const labels = { low: '🟢 LOW RISK', medium: '🟡 MEDIUM RISK', high: '🔴 HIGH RISK' };
+
+    scoreEl.textContent = score + '/100';
+    scoreEl.style.color = colors[level];
+
+    setTimeout(() => {
+      barEl.style.width = score + '%';
+      barEl.style.background = colors[level];
+    }, 100);
+
+    badgeEl.className = 'risk-badge ' + level;
+    badgeEl.textContent = labels[level];
+
+    // Flags
+    const flagsEl = document.getElementById('flagsList');
+    if (flags.length === 0) flags.push({ text: '✅ No suspicious activity detected', color: '#22c55e' });
+    flagsEl.innerHTML = flags.map(f =>
+      `<div class="flag-item">
+        <div class="flag-dot" style="background:${f.color}"></div>
+        <span style="color:${f.color}">${f.text}</span>
+      </div>`
+    ).join('');
+
+    // Alert box
+    const alertBox = document.getElementById('alertBox');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMsg = document.getElementById('alertMsg');
+
+    const alerts = {
+      high: {
+        title: '🚨 HIGH RISK — Fraud Warning!',
+        msg: `Incoming payment of ₹${amount.toLocaleString()} from ${upiId} has been flagged as HIGH RISK. This UPI ID matches known fraud patterns. Do not accept without verification.`
+      },
+      medium: {
+        title: '⚠️ MEDIUM RISK — Proceed with Caution',
+        msg: `Payment of ₹${amount.toLocaleString()} from ${upiId} shows some suspicious signals. Review carefully before accepting.`
+      },
+      low: {
+        title: '✅ LOW RISK — Transaction Looks Safe',
+        msg: `Payment of ₹${amount.toLocaleString()} from ${upiId} appears legitimate. You can safely accept.`
+      }
+    };
+
+    alertBox.className = 'alert-box show ' + level;
+    alertTitle.style.color = colors[level];
+    alertTitle.textContent = alerts[level].title;
+    alertMsg.textContent = alerts[level].msg;
+  }
+
+  function takeAction(action) {
+    const upiId = document.getElementById('upiId').value || 'unknown@ybl';
+    const amount = parseInt(document.getElementById('amount').value) || 1000;
+
+    txCount++;
+    const logEl = document.getElementById('txLog');
+
+    const emojis = ['👤', '🏪', '💳', '📱', '🧑'];
+    const emoji = emojis[txCount % emojis.length];
+    const statusColors = { accepted: '#22c55e', rejected: '#ef4444', reported: '#f59e0b' };
+    const statusText = { accepted: 'Accepted', rejected: 'Rejected', reported: 'Reported' };
+
+    // Clear placeholder
+    if (txCount === 1) logEl.innerHTML = '';
+
+    const item = document.createElement('div');
+    item.className = 'tx-item';
+    item.innerHTML = `
+      <div class="tx-left">
+        <div class="tx-avatar">${emoji}</div>
+        <div>
+          <div class="tx-name">${upiId}</div>
+          <div class="tx-id">${new Date().toLocaleTimeString()} · ${statusText[action]}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="tx-amount">₹${amount.toLocaleString()}</div>
+        <div class="tx-risk ${currentRisk}">${currentRisk.toUpperCase()}</div>
+        <div style="font-size:12px;color:${statusColors[action]};font-weight:600;">${statusText[action]}</div>
+      </div>
+    `;
+
+    logEl.prepend(item);
+    document.getElementById('alertBox').className = 'alert-box';
+  }
+</script>
+</body>
+</html>
